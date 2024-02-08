@@ -1,2 +1,3 @@
 # uzewav
-A wav audio file player for the Uzebox 
+
+A wav player for the Uzebox games console.

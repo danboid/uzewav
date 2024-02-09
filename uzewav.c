@@ -24,11 +24,13 @@ const char *numbers[10] = {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9};
 int frames, seconds, minutes, hours, hundreds, btnprev, btnheld = 0;
 
 bool active = false;
+bool SPK_ON = true;
 
 bool cardDetected;
 
 char sector_buf[512];
 sdc_struct_t sd_struct;
+uint32_t file_base;
 
 const char boing[] PROGMEM ={
     0,PC_WAVE,8,
@@ -68,6 +70,7 @@ int main()
     SetSpritesTileTable(tileset);
     InitMusicPlayer(patches);
     SetTileTable(tileset);
+    uint32_t t32;
     ClearVram();
     while (1)
     {
@@ -112,6 +115,20 @@ int main()
 
             else
                 cardDetected = true;
+        }
+
+        if(cardDetected){
+            Print(1,14,PSTR("VOICE DATA FOUND"));
+            FS_Select_Cluster(&sd_struct, t32);
+            file_base = FS_Get_Pos(&sd_struct); // keep track of the starting byte so we can offset with the directory
+            SPK_ON = true;
+
+        }else{
+            SPK_ON = false;
+            for(uint8_t i=0; i<7; i++){
+                Print(1,14,(i&1)?PSTR("                  "):PSTR("MISSING VOICE DATA"));
+                WaitVsync(20);
+            }
         }
     }
 }
